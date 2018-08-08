@@ -9,15 +9,7 @@ fun loadContributorsFlowConcurrent(req: RequestData) = flow<List<User>> {
     val repos = service.listOrgRepos(req.org).await()
     log.info("${req.org}: loaded ${repos.size} repos")
     // define resulting flow
-    val resultFlow = repos.asFlow()
-        .concurrentMapMerge(4) { repo ->
-            val users = service.listRepoContributors(req.org, repo.name).await()
-            log.info("${repo.name}: loaded ${users.size} contributors")
-            users
-        }
-        .scan(emptyList<User>()) { contribs, users ->
-            (contribs + users).aggregateSlow()
-        }
+    val resultFlow: Flow<List<User>> = TODO()
     // emit all results
     emitAll(resultFlow)
 }
