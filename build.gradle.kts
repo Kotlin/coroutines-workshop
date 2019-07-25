@@ -11,7 +11,7 @@ repositories {
 val coroutinesVersion = "1.2.1"
 val retrofitVersion = "2.5.0"
 val jacksonModuleKotlinVersion = "2.9.8"
-val logbackVersion = "1.1.3"
+val logbackVersion = "1.2.3"
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
