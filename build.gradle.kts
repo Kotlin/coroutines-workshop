@@ -1,15 +1,15 @@
 import org.jetbrains.kotlin.gradle.plugin.*
 
 plugins {
-    kotlin("jvm") version "1.3.31"
+    kotlin("jvm") version "1.3.61"
 }
 
 repositories {
     jcenter()
 }
 
-val coroutinesVersion = "1.2.1"
-val retrofitVersion = "2.5.0"
+val coroutinesVersion = "1.3.2"
+val retrofitVersion = "2.6.2"
 val jacksonModuleKotlinVersion = "2.9.8"
 val logbackVersion = "1.2.3"
 
