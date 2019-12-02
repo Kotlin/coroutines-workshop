@@ -3,7 +3,7 @@ package project
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.debug.*
-import kotlinx.coroutines.swing.*
+import kotlinx.coroutines.flow.*
 import project.Variant.*
 import java.awt.*
 import java.awt.event.*
@@ -11,7 +11,6 @@ import java.util.concurrent.*
 import java.util.prefs.*
 import javax.swing.*
 import javax.swing.table.*
-import kotlin.coroutines.*
 
 @ExperimentalCoroutinesApi
 fun main() {
@@ -34,14 +33,16 @@ enum class Variant {
     CONCURRENT,  // Request06Concurrent
     FUTURE,      // Request07Future
     GATHER,      // Request08Gather
-    ACTOR        // Request09Actor
+    ACTOR,       // Request09Actor
+    FLOW,        // Request10Flow
+    FLOW_ON      // Request10Flow (too)
 }
 
 private val INSETS = Insets(3, 10, 3, 10)
 private val COLUMNS = arrayOf("Login", "Contributions")
 
 @Suppress("CONFLICTING_INHERITED_JVM_DECLARATIONS")
-class ContributorsUI : JFrame("GitHub Contributors"), CoroutineScope {
+class ContributorsUI : JFrame("GitHub Contributors") {
     private val username = JTextField(20)
     private val password = JTextField(20)
     private val org = JTextField( 20)
@@ -58,9 +59,7 @@ class ContributorsUI : JFrame("GitHub Contributors"), CoroutineScope {
     private val icon = ImageIcon(javaClass.classLoader.getResource("ajax-loader.gif"))
     private val animation = JLabel("Event thread is active", icon, SwingConstants.CENTER)
 
-    private val job = Job()
-    override val coroutineContext: CoroutineContext
-        get() = job + Dispatchers.Swing
+    private val scope = MainScope()
 
     init {
         // Create UI
@@ -90,7 +89,7 @@ class ContributorsUI : JFrame("GitHub Contributors"), CoroutineScope {
         // Install window close listener to save preferences and exit
         addWindowListener(object : WindowAdapter() {
             override fun windowClosing(e: WindowEvent?) {
-                job.cancel()
+                scope.cancel()
                 savePrefs()
                 System.exit(0)
             }
@@ -101,6 +100,7 @@ class ContributorsUI : JFrame("GitHub Contributors"), CoroutineScope {
 
     private fun selectedVariant(): Variant = variant.getItemAt(variant.selectedIndex)
 
+    @ExperimentalCoroutinesApi
     private fun doLoad() {
         clearResults()
         val req = RequestData(username.text, password.text, org.text)
@@ -124,27 +124,27 @@ class ContributorsUI : JFrame("GitHub Contributors"), CoroutineScope {
                 }
             }
             COROUTINE -> { // Using coroutines
-                launch {
+                scope.launch {
                     val users = loadContributors(req)
                     updateResults(users)
                 }
             }
             PROGRESS -> { // Using coroutines showing progress
-                launch {
+                scope.launch {
                     loadContributorsProgress(req) { users ->
                         updateResults(users)
                     }
                 }
             }
             CANCELLABLE -> { // Using coroutines with cancellation
-                launch {
+                scope.launch {
                     loadContributorsProgress(req) { users ->
                         updateResults(users)
                     }
                 }.updateCancelJob()
             }
             CONCURRENT -> {
-                launch {
+                scope.launch {
                     updateResults(loadContributorsConcurrent(req))
                 }.updateCancelJob()
             }
@@ -158,22 +158,37 @@ class ContributorsUI : JFrame("GitHub Contributors"), CoroutineScope {
                 }
             }
             GATHER -> {
-                launch {
+                scope.launch {
                     loadContributorsGather(req) { users ->
                         updateResults(users)
                     }
                 }.updateCancelJob()
             }
             ACTOR -> {
-                launch {
+                scope.launch {
                     loadContributorsActor(req, uiUpdateActor)
                 }.updateCancelJob()
+            }
+            FLOW -> {
+                scope.launch {
+                    loadContributorsFlow(req)
+                        .collect { users ->
+                            updateResults(users)
+                        }
+                }.updateCancelJob()
+            }
+            FLOW_ON -> {
+                loadContributorsFlow(req)
+                    .flowOn(Dispatchers.Default)
+                    .onEach { users -> updateResults(users) }
+                    .launchIn(scope)
+                    .updateCancelJob()
             }
         }
     }
 
     private val uiUpdateActor =
-        actor<List<User>> {
+        scope.actor<List<User>> {
             for (users in channel) {
                 updateResults(users)
             }
@@ -194,7 +209,7 @@ class ContributorsUI : JFrame("GitHub Contributors"), CoroutineScope {
         updateEnabled(false)
         val listener = ActionListener { cancel() }
         cancel.addActionListener(listener)
-        launch {
+        scope.launch {
             join()
             updateEnabled(true)
             cancel.removeActionListener(listener)
