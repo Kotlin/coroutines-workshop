@@ -25,16 +25,16 @@ fun main() {
 }
 
 enum class Variant {
-    BLOCKING,    // Request1Blocking
-    BACKGROUND,  // Request2Background
-    CALLBACKS,   // Request3Callbacks
-    COROUTINE,   // Request4Coroutine
-    PROGRESS,    // Request5Progress
-    CANCELLABLE, // Request5Progress (too)
-    CONCURRENT,  // Request6Concurrent
-    FUTURE,      // Request7Future
-    GATHER,      // Request8Gather
-    ACTOR        // Request9Actor
+    BLOCKING,    // Request01Blocking
+    BACKGROUND,  // Request02Background
+    CALLBACKS,   // Request03Callbacks
+    COROUTINE,   // Request04Coroutine
+    PROGRESS,    // Request05Progress
+    CANCELLABLE, // Request05Progress (too)
+    CONCURRENT,  // Request06Concurrent
+    FUTURE,      // Request07Future
+    GATHER,      // Request08Gather
+    ACTOR        // Request09Actor
 }
 
 private val INSETS = Insets(3, 10, 3, 10)

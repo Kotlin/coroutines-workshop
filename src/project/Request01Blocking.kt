@@ -20,7 +20,7 @@ fun loadContributorsBlocking(req: RequestData): List<User> {
 fun <T> Call<T>.responseBodyBlocking(
     noContent: (Response<T>) -> T
 ): T {
-    val response = execute() // Executes requests and blocks current thread
+    val response = execute() // Executes request and blocks current thread
     return when (response.code()) {
         200 -> response.body() as T // OK
         204 -> noContent(response) // NO CONTENT

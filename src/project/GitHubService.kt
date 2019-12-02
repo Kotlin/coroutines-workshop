@@ -51,10 +51,9 @@ fun createGitHubService(username: String, password: String): GitHubService {
             val request = builder.build()
             chain.proceed(request)
         }.build()
-    val retrofit = Retrofit.Builder()
+    return Retrofit.Builder()
         .baseUrl("https://api.github.com")
         .addConverterFactory(JacksonConverterFactory.create(jacksonObjectMapper()))
         .client(httpClient)
-        .build()
-    return retrofit.create(GitHubService::class.java)
+        .build().create()
 }
