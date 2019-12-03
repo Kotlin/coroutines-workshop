@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.plugin.*
+import org.jetbrains.kotlin.gradle.tasks.*
 
 plugins {
     kotlin("jvm") version "1.3.61"
@@ -32,4 +33,8 @@ sourceSets["main"].apply {
     withConvention(KotlinSourceSet::class) {
         kotlin.srcDir("src")
     }
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
 }

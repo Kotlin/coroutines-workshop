@@ -12,7 +12,7 @@ import java.util.prefs.*
 import javax.swing.*
 import javax.swing.table.*
 
-@ExperimentalCoroutinesApi
+@UseExperimental(ExperimentalCoroutinesApi::class)
 fun main() {
     DebugProbes.install()
     setDefaultFontSize(18f)
@@ -24,18 +24,19 @@ fun main() {
 }
 
 enum class Variant {
-    BLOCKING,    // Request01Blocking
-    BACKGROUND,  // Request02Background
-    CALLBACKS,   // Request03Callbacks
-    COROUTINE,   // Request04Coroutine
-    PROGRESS,    // Request05Progress
-    CANCELLABLE, // Request05Progress (too)
-    CONCURRENT,  // Request06Concurrent
-    FUTURE,      // Request07Future
-    GATHER,      // Request08Gather
-    ACTOR,       // Request09Actor
-    FLOW,        // Request10Flow
-    FLOW_ON      // Request10Flow (too)
+    BLOCKING,       // Request01Blocking
+    BACKGROUND,     // Request02Background
+    CALLBACKS,      // Request03Callbacks
+    COROUTINE,      // Request04Coroutine
+    PROGRESS,       // Request05Progress
+    CANCELLABLE,    // Request05Progress (too)
+    CONCURRENT,     // Request06Concurrent
+    FUTURE,         // Request07Future
+    GATHER,         // Request08Gather
+    ACTOR,          // Request09Actor
+    FLOW,           // Request10Flow
+    FLOW_ON,        // Request10Flow (too)
+    FLOW_CONCURRENT // Request11Flow
 }
 
 private val INSETS = Insets(3, 10, 3, 10)
@@ -180,6 +181,12 @@ class ContributorsUI : JFrame("GitHub Contributors") {
             FLOW_ON -> {
                 loadContributorsFlow(req)
                     .flowOn(Dispatchers.Default)
+                    .onEach { users -> updateResults(users) }
+                    .launchIn(scope)
+                    .updateCancelJob()
+            }
+            FLOW_CONCURRENT -> {
+                loadContributorsFlowConcurrent(req)
                     .onEach { users -> updateResults(users) }
                     .launchIn(scope)
                     .updateCancelJob()
