@@ -36,5 +36,9 @@ sourceSets["main"].apply {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions.freeCompilerArgs += "-Xuse-experimental=kotlin.Experimental"
+    kotlinOptions.freeCompilerArgs +=
+        "-Xuse-experimental=" +
+            "kotlin.Experimental," +
+            "kotlinx.coroutines.ExperimentalCoroutinesApi," +
+            "kotlinx.coroutines.FlowPreview"
 }

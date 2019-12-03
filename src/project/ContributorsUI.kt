@@ -12,7 +12,6 @@ import java.util.prefs.*
 import javax.swing.*
 import javax.swing.table.*
 
-@UseExperimental(ExperimentalCoroutinesApi::class)
 fun main() {
     DebugProbes.install()
     setDefaultFontSize(18f)
@@ -101,7 +100,6 @@ class ContributorsUI : JFrame("GitHub Contributors") {
 
     private fun selectedVariant(): Variant = variant.getItemAt(variant.selectedIndex)
 
-    @ExperimentalCoroutinesApi
     private fun doLoad() {
         clearResults()
         val req = RequestData(username.text, password.text, org.text)
