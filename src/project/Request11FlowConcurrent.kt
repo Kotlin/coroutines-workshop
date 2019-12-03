@@ -10,7 +10,7 @@ fun loadContributorsFlowConcurrent(req: RequestData) : Flow<List<User>> = flow {
     log.info("${req.org}: loaded ${repos.size} repos")
     // define resulting flow
     val resultFlow = repos.asFlow()
-        .concurrentMap(4) { repo ->
+        .concurrentMapMerge(4) { repo ->
             val users = service.listRepoContributors(req.org, repo.name).await()
             log.info("${repo.name}: loaded ${users.size} contributors")
             users
@@ -27,7 +27,7 @@ suspend fun createGitHubServiceCoroutine(username: String, password: String): Gi
         createGitHubService(username, password)
     }
 
-fun <T, R> Flow<T>.concurrentMap(concurrency: Int, block: suspend (T) -> R): Flow<R> =
+fun <T, R> Flow<T>.concurrentMapMerge(concurrency: Int, block: suspend (T) -> R): Flow<R> =
     flatMapMerge(concurrency) { value ->
         flow { emit(block(value)) }
     }
