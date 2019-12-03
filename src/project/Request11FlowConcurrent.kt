@@ -3,7 +3,7 @@ package project
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
-fun loadContributorsFlowConcurrent(req: RequestData) : Flow<List<User>> = flow {
+fun loadContributorsFlowConcurrent(req: RequestData) = flow<List<User>> {
     val service = createGitHubServiceCoroutine(req.username, req.password)
     log.info("Loading ${req.org} repos")
     val repos = service.listOrgRepos(req.org).await()
