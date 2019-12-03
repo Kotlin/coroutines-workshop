@@ -6,11 +6,11 @@ fun main() = runBlocking<Unit> {
     val job = launch {
         delay(1000)
         println("launch: done")
-        error("Something went wrong inside launch")
+        error("launch: something went wrong")
     }
     val deferred = async {
-        delay(1000)
+        delay(500)
         println("async: done")
-        error("Something went wrong inside async")
+        error("async: something went wrong")
     }
 }
